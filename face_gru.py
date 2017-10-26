@@ -1,0 +1,29 @@
+import os
+import numpy as np
+from keras.models import Sequential
+from keras.layers import GRU, Bidirectional, Dense, Dropout
+from keras.utils import to_categorical
+from keras.optimizers import Adam
+
+def net():
+    model = Sequential()
+    model.add(Bidirectional(GRU(50, return_sequences=True), input_shape=(200, 100)))
+    model.add(Bidirectional(GRU(20)))
+    model.add(Dense(6, activation='softmax'))
+    return model
+
+model = net()
+model.summary()
+opt = Adam(lr=0.001)
+model.compile(opt, 'categorical_crossentropy', metrics=['accuracy'])
+
+X_train = np.load('X_train_face.npy')
+y_train = to_categorical(np.load('y_train.npy'))
+X_val = np.load('X_val_face.npy')
+y_val = to_categorical(np.load('y_val.npy'))
+
+print X_train.shape, y_train.shape
+print X_val.shape, y_val.shape
+
+model.fit(X_train, y_train, epochs=10, batch_size=100,
+    validation_data=(X_val, y_val))
