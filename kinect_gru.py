@@ -4,12 +4,14 @@ from keras.models import Sequential
 from keras.layers import GRU, Bidirectional, Dense, Dropout
 from keras.utils import to_categorical
 from keras.optimizers import Adam
+from keras.callbacks import ModelCheckpoint
 
 def net():
     model = Sequential()
     model.add(Bidirectional(GRU(20, return_sequences=True), input_shape=(60, 27)))
+    model.add(Dropout(0.7))
     model.add(Bidirectional(GRU(10)))
-    # model.add(Dropout(0.3))
+    model.add(Dropout(0.7))
     model.add(Dense(6, activation='softmax'))
     return model
 
@@ -36,5 +38,8 @@ print X_val.shape, y_val.shape
 print X_train.min(), X_train.max()
 print X_val.min(), X_val.max()
 
-model.fit(X_train, y_train, epochs=100, batch_size=100,
-    validation_data=(X_val, y_val))
+mc = ModelCheckpoint('model_kinect.h5', verbose=1, save_best_only=True)
+
+model.fit(X_train, y_train, epochs=500, batch_size=100,
+    validation_data=(X_val, y_val),
+    callbacks=[mc])

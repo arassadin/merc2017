@@ -4,11 +4,14 @@ from keras.models import Sequential
 from keras.layers import GRU, Bidirectional, Dense, Dropout
 from keras.utils import to_categorical
 from keras.optimizers import Adam
+from keras.callbacks import ModelCheckpoint
 
 def net():
     model = Sequential()
     model.add(Bidirectional(GRU(50, return_sequences=True), input_shape=(200, 100)))
+    model.add(Dropout(0.7))
     model.add(Bidirectional(GRU(20)))
+    model.add(Dropout(0.7))
     model.add(Dense(6, activation='softmax'))
     return model
 
@@ -25,5 +28,8 @@ y_val = to_categorical(np.load('y_val.npy'))
 print X_train.shape, y_train.shape
 print X_val.shape, y_val.shape
 
-model.fit(X_train, y_train, epochs=10, batch_size=100,
-    validation_data=(X_val, y_val))
+mc = ModelCheckpoint('model_face.h5', verbose=1, save_best_only=True)
+
+model.fit(X_train, y_train, epochs=20, batch_size=100,
+    validation_data=(X_val, y_val),
+    callbacks=[mc])
